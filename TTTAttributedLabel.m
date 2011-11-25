@@ -118,7 +118,7 @@ static inline NSAttributedString * NSAttributedStringByScalingFontSize(NSAttribu
 @property (readwrite, nonatomic, copy) NSAttributedString *attributedText;
 @property (readwrite, nonatomic, assign) CTFramesetterRef framesetter;
 @property (readwrite, nonatomic, assign) CTFramesetterRef highlightFramesetter;
-@property (readwrite, nonatomic, retain) NSArray *links;
+@property (readwrite, nonatomic, strong) NSArray *links;
 
 - (id)initCommon;
 - (void)setNeedsFramesetter;
