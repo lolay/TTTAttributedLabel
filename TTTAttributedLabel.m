@@ -69,9 +69,8 @@ static inline NSTextCheckingType NSTextCheckingTypeFromUIDataDetectorType(UIData
 static inline NSDictionary * NSAttributedStringAttributesFromLabel(TTTAttributedLabel *label) {
     NSMutableDictionary *mutableAttributes = [NSMutableDictionary dictionary]; 
     
-    CTFontRef font = CTFontCreateWithName((CFStringRef)label.font.fontName, label.font.pointSize, NULL);
-    [mutableAttributes setObject:(id)font forKey:(NSString *)kCTFontAttributeName];
-    CFRelease(font);
+    id font = (__bridge_transfer id) CTFontCreateWithName((CFStringRef)label.font.fontName, label.font.pointSize, NULL);
+    [mutableAttributes setObject:font forKey:(NSString *)kCTFontAttributeName];
     
     [mutableAttributes setObject:(id)[label.textColor CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
     
@@ -95,9 +94,8 @@ static inline NSDictionary * NSAttributedStringAttributesFromLabel(TTTAttributed
         {.spec = kCTParagraphStyleSpecifierHeadIndent, .valueSize = sizeof(CGFloat), .value = (const void *)&leftMargin},
         {.spec = kCTParagraphStyleSpecifierTailIndent, .valueSize = sizeof(CGFloat), .value = (const void *)&rightMargin},
 	};
-	CTParagraphStyleRef paragraphStyle = CTParagraphStyleCreate(paragraphStyles, 9);
-	[mutableAttributes setObject:(id)paragraphStyle forKey:(NSString *)kCTParagraphStyleAttributeName];
-	CFRelease(paragraphStyle);
+	id paragraphStyle = (__bridge_transfer id) CTParagraphStyleCreate(paragraphStyles, 9);
+	[mutableAttributes setObject:paragraphStyle forKey:(NSString *)kCTParagraphStyleAttributeName];
     
     return [NSDictionary dictionaryWithDictionary:mutableAttributes];
 }
@@ -105,11 +103,11 @@ static inline NSDictionary * NSAttributedStringAttributesFromLabel(TTTAttributed
 static inline NSAttributedString * NSAttributedStringByScalingFontSize(NSAttributedString *attributedString, CGFloat scale, CGFloat minimumFontSize) {    
     NSMutableAttributedString *mutableAttributedString = [[attributedString mutableCopy] autorelease];
     [mutableAttributedString enumerateAttribute:(NSString *)kCTFontAttributeName inRange:NSMakeRange(0, [mutableAttributedString length]) options:0 usingBlock:^(id value, NSRange range, BOOL *stop) {
-        CTFontRef font = (CTFontRef)value;
+        CTFontRef font = (__bridge CTFontRef)value;
         if (font) {
             CGFloat scaledFontSize = floorf(CTFontGetSize(font) * scale);
             CTFontRef scaledFont = CTFontCreateCopyWithAttributes(font, fmaxf(scaledFontSize, minimumFontSize), NULL, NULL);
-            CFAttributedStringSetAttribute((CFMutableAttributedStringRef)mutableAttributedString, CFRangeMake(range.location, range.length), kCTFontAttributeName, scaledFont);
+            CFAttributedStringSetAttribute((__bridge CFMutableAttributedStringRef)mutableAttributedString, CFRangeMake(range.location, range.length), kCTFontAttributeName, scaledFont);
         }
     }];
     
@@ -470,7 +468,7 @@ static inline NSAttributedString * NSAttributedStringByScalingFontSize(NSAttribu
         if (!self.highlightFramesetter) {
             NSMutableAttributedString *mutableAttributedString = [[self.attributedText mutableCopy] autorelease];
             [mutableAttributedString addAttribute:(NSString *)kCTForegroundColorAttributeName value:(id)[self.highlightedTextColor CGColor] range:NSMakeRange(0, mutableAttributedString.length)];
-            self.highlightFramesetter = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)mutableAttributedString);
+            self.highlightFramesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)mutableAttributedString);
         }
         
         [self drawFramesetter:self.highlightFramesetter textRange:textRange inRect:textRect context:c];
