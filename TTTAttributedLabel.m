@@ -69,7 +69,7 @@ static inline NSTextCheckingType NSTextCheckingTypeFromUIDataDetectorType(UIData
 static inline NSDictionary * NSAttributedStringAttributesFromLabel(TTTAttributedLabel *label) {
     NSMutableDictionary *mutableAttributes = [NSMutableDictionary dictionary]; 
     
-    id font = (__bridge_transfer id) CTFontCreateWithName((CFStringRef)label.font.fontName, label.font.pointSize, NULL);
+    id font = (__bridge_transfer id) CTFontCreateWithName((__bridge CFStringRef)label.font.fontName, label.font.pointSize, NULL);
     [mutableAttributes setObject:font forKey:(NSString *)kCTFontAttributeName];
     
     [mutableAttributes setObject:(id)[label.textColor CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
@@ -101,7 +101,7 @@ static inline NSDictionary * NSAttributedStringAttributesFromLabel(TTTAttributed
 }
 
 static inline NSAttributedString * NSAttributedStringByScalingFontSize(NSAttributedString *attributedString, CGFloat scale, CGFloat minimumFontSize) {    
-    NSMutableAttributedString *mutableAttributedString = [[attributedString mutableCopy] autorelease];
+    NSMutableAttributedString *mutableAttributedString = [attributedString mutableCopy];
     [mutableAttributedString enumerateAttribute:(NSString *)kCTFontAttributeName inRange:NSMakeRange(0, [mutableAttributedString length]) options:0 usingBlock:^(id value, NSRange range, BOOL *stop) {
         CTFontRef font = (__bridge CTFontRef)value;
         if (font) {
@@ -181,10 +181,6 @@ static inline NSAttributedString * NSAttributedStringByScalingFontSize(NSAttribu
     if (_framesetter) CFRelease(_framesetter);
     if (_highlightFramesetter) CFRelease(_highlightFramesetter);
     
-    [_attributedText release];
-    [_links release];
-    [_linkAttributes release];
-    [super dealloc];
 }
 
 #pragma mark -
@@ -195,7 +191,6 @@ static inline NSAttributedString * NSAttributedStringByScalingFontSize(NSAttribu
     }
     
     [self willChangeValueForKey:@"attributedText"];
-    [_attributedText release];
     _attributedText = [text copy];
     [self didChangeValueForKey:@"attributedText"];
     
@@ -212,7 +207,7 @@ static inline NSAttributedString * NSAttributedStringByScalingFontSize(NSAttribu
             if (_framesetter) CFRelease(_framesetter);
             if (_highlightFramesetter) CFRelease(_highlightFramesetter);
             
-            self.framesetter = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)self.attributedText);
+            self.framesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)self.attributedText);
             self.highlightFramesetter = nil;
             _needsFramesetter = NO;
         }
@@ -252,7 +247,7 @@ static inline NSAttributedString * NSAttributedStringByScalingFontSize(NSAttribu
     self.links = [self.links arrayByAddingObject:result];
     
     if (self.linkAttributes) {
-        NSMutableAttributedString *mutableAttributedString = [[[NSMutableAttributedString alloc] initWithAttributedString:self.attributedText] autorelease];
+        NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedText];
         [mutableAttributedString addAttributes:self.linkAttributes range:result.range];
         self.attributedText = mutableAttributedString;        
     }
@@ -386,10 +381,10 @@ static inline NSAttributedString * NSAttributedStringByScalingFontSize(NSAttribu
 
 - (void)setText:(id)text afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString *(^)(NSMutableAttributedString *mutableAttributedString))block {
     if ([text isKindOfClass:[NSString class]]) {
-        self.attributedText = [[[NSAttributedString alloc] initWithString:text] autorelease];
+        self.attributedText = [[NSAttributedString alloc] initWithString:text];
     }
     
-    NSMutableAttributedString *mutableAttributedString = [[[NSMutableAttributedString alloc] initWithAttributedString:self.attributedText] autorelease];
+    NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedText];
     [mutableAttributedString addAttributes:NSAttributedStringAttributesFromLabel(self) range:NSMakeRange(0, [mutableAttributedString length])];
     
     if (block) {
@@ -422,7 +417,7 @@ static inline NSAttributedString * NSAttributedStringByScalingFontSize(NSAttribu
         }
         
         if (textWidth > availableWidth && textWidth > 0.0f) {
-            originalAttributedText = [[self.attributedText copy] autorelease];
+            originalAttributedText = [self.attributedText copy];
             self.text = NSAttributedStringByScalingFontSize(self.attributedText, availableWidth / textWidth, self.minimumFontSize);
         }
     }
@@ -466,7 +461,7 @@ static inline NSAttributedString * NSAttributedStringByScalingFontSize(NSAttribu
     // Finally, draw the text or highlighted text itself (on top of the shadow, if there is one)
     if (self.highlightedTextColor && self.highlighted) {
         if (!self.highlightFramesetter) {
-            NSMutableAttributedString *mutableAttributedString = [[self.attributedText mutableCopy] autorelease];
+            NSMutableAttributedString *mutableAttributedString = [self.attributedText mutableCopy];
             [mutableAttributedString addAttribute:(NSString *)kCTForegroundColorAttributeName value:(id)[self.highlightedTextColor CGColor] range:NSMakeRange(0, mutableAttributedString.length)];
             self.highlightFramesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)mutableAttributedString);
         }
