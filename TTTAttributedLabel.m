@@ -438,7 +438,7 @@ static inline NSAttributedString * NSAttributedStringByScalingFontSize(NSAttribu
     
     if (textSize.height < textRect.size.height) {
         CGFloat yOffset = 0.0f;
-        CGFloat heightChange = (textRect.size.height - textSize.height);
+        CGFloat heightChange = floorf(textRect.size.height - textSize.height);
         switch (self.verticalAlignment) {
             case TTTAttributedLabelVerticalAlignmentTop:
                 heightChange = 0.0f;
