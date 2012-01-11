@@ -50,7 +50,7 @@ typedef enum {
  - `lineBreakMode` - This property displays only the first line when the value is `UILineBreakModeHeadTruncation`, `UILineBreakModeTailTruncation`, or `UILineBreakModeMiddleTruncation`
  - `adjustsFontsizeToFitWidth` - This property is effective for any value of `numberOfLines` greater than zero
  */
-@interface TTTAttributedLabel : UILabel <TTTAttributedLabel> {
+@interface TTTAttributedLabel : UILabel <TTTAttributedLabel, UIGestureRecognizerDelegate> {
 @private
     NSAttributedString *_attributedText;
     CTFramesetterRef _framesetter;
@@ -58,6 +58,7 @@ typedef enum {
     
     id __unsafe_unretained _delegate;
     UIDataDetectorTypes _dataDetectorTypes;
+    NSDataDetector *_dataDetector;
     NSArray *_links;
     NSDictionary *_linkAttributes;
     
@@ -69,7 +70,7 @@ typedef enum {
     UIEdgeInsets _textInsets;
     TTTAttributedLabelVerticalAlignment _verticalAlignment;
     
-    BOOL _userInteractionDisabled;
+    UITapGestureRecognizer *_tapGestureRecognizer;
 }
 
 ///-----------------------------
@@ -183,6 +184,14 @@ typedef enum {
 ///-------------------
 
 /**
+ Adds a link to an `NSTextCheckingResult`.
+ 
+ @param result An `NSTextCheckingResult` representing the link's location and type.
+ @param attributes The attributes to be added to the text in the range of the specified link. If `nil`, no attributes are added.
+ */
+- (void)addLinkWithTextCheckingResult:(NSTextCheckingResult *)result attributes:(NSDictionary *)attributes;
+
+/**
  Adds a link to a URL for a specified range in the label text.
  
  @param url The url to be linked to
@@ -280,4 +289,3 @@ typedef enum {
  */
 - (void)attributedLabel:(TTTAttributedLabel *)label didSelectLinkWithDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone duration:(NSTimeInterval)duration;
 @end
-

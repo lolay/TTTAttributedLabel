@@ -25,6 +25,7 @@
 #import "TTTAttributedLabel.h"
 
 static CGFloat const kSummaryTextFontSize = 17;
+static CGFloat const kAttributedTableViewCellVerticalMargin = 20.0f;
 
 static NSRegularExpression *__nameRegularExpression;
 static inline NSRegularExpression * NameRegularExpression() {
@@ -67,6 +68,7 @@ static inline NSRegularExpression * ParenthesisRegularExpression() {
     self.summaryLabel.highlightedTextColor = [UIColor whiteColor];
     self.summaryLabel.shadowColor = [UIColor colorWithWhite:0.87 alpha:1.0];
     self.summaryLabel.shadowOffset = CGSizeMake(0.0f, 1.0f);
+    self.summaryLabel.verticalAlignment = TTTAttributedLabelVerticalAlignmentTop;
 
     [self.contentView addSubview:self.summaryLabel];
     
@@ -109,26 +111,27 @@ static inline NSRegularExpression * ParenthesisRegularExpression() {
                 [mutableAttributedString addAttribute:(NSString*)kCTForegroundColorAttributeName value:(id)[[UIColor grayColor] CGColor] range:result.range];
             }
         }];
-        
+                
         return mutableAttributedString;
     }];
     
     NSRegularExpression *regexp = NameRegularExpression();
     NSRange linkRange = [regexp rangeOfFirstMatchInString:self.summaryText options:0 range:NSMakeRange(0, [self.summaryText length])];
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://wikipedia.org/wiki/%@", [self.summaryText substringWithRange:linkRange]]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://en.wikipedia.org/wiki/%@", [self.summaryText substringWithRange:linkRange]]];
     [self.summaryLabel addLinkToURL:url withRange:linkRange];
 }
 
 + (CGFloat)heightForCellWithText:(NSString *)text {
     CGFloat height = 10.0f;
     height += ceilf([text sizeWithFont:[UIFont systemFontOfSize:kSummaryTextFontSize] constrainedToSize:CGSizeMake(270.0f, CGFLOAT_MAX) lineBreakMode:UILineBreakModeWordWrap].height);
-        
+    height += kAttributedTableViewCellVerticalMargin;
     return height;
 }
 
 #pragma mark - UIView
 
 - (void)layoutSubviews {
+    [super layoutSubviews];
     self.textLabel.hidden = YES;
     self.detailTextLabel.hidden = YES;
         
